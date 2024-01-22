@@ -1,5 +1,6 @@
 package eventmanagement_DAO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -77,18 +78,20 @@ public class ClientEventDAO
 	{
 		ClientEvent event = em.find(ClientEvent.class, clienteventid);
 		List<ClientService> oldservice=event.getClientServices();
+		List<ClientService> newservice = new ArrayList<ClientService>();
 		
 		if(event != null)
 		{
 			et.begin();
-			event.setClientServices(oldservice);
-			event.setClientServices(service);
+			newservice.addAll(oldservice);		
+			newservice.addAll(service);
+			event.setClientServices(newservice);
 			em.merge(event);
-			et.commit();
-			
-			return event;
+			et.commit();	
+
 		}
-		return null;
+		return event;
+
 	}
 
 }

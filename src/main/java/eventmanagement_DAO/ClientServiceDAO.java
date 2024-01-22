@@ -1,5 +1,6 @@
 package eventmanagement_DAO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -8,6 +9,8 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
+import eventmanagement_DTO.Client;
+import eventmanagement_DTO.ClientEvent;
 import eventmanagement_DTO.ClientService;
 
 public class ClientServiceDAO 
@@ -59,5 +62,39 @@ public class ClientServiceDAO
 			return list;
 		}
 		return null;
+	}
+	
+	public List<ClientService> deleteClientService(int id,int csId)
+	{
+		ClientEvent client = em.find(ClientEvent.class, csId);
+		List<ClientService> exservice=client.getClientServices();
+		List<ClientService> newservice= new ArrayList<ClientService>();
+		
+		ClientService oldservice=em.find(ClientService.class, id);
+		
+		if(exservice != null)
+		{
+			for(ClientService s : exservice)
+			{
+				if(!oldservice.getClientServiceName().equals(s.getClientServiceName()))
+				{
+					newservice.add(s);
+				}
+			}
+			
+			et.begin();
+			client.setClientServices(newservice);
+			em.merge(client);
+			et.commit();
+			
+			if(oldservice != null)
+			{
+				et.begin();
+				em.remove(oldservice);
+				et.commit();
+			}
+		}
+		
+		return newservice;
 	}
 }

@@ -40,7 +40,7 @@ public class Driver {
 		System.out.println("7. Find the Client Data");
 		System.out.println("8. Save The New Client Event Data");
 		System.out.println("9. Save The New Client Service Data");
-		System.out.println();
+		System.out.println("10. Delete the Client Service Data");
 		System.out.println();
 
 		System.out.println("Choose the above Operation, Which operation you want to Perform ?");
@@ -93,6 +93,11 @@ public class Driver {
 			System.out.println(d.insertClientService());
 			break;
 
+		// delete client service
+		case 10:
+			System.out.println(d.deleteClientService());
+			break;
+
 		default:
 			System.out.println("Please Enter the Correct Operation");
 			break;
@@ -124,10 +129,10 @@ public class Driver {
 	public Admin findAdmin() {
 		Scanner scr = new Scanner(System.in);
 
-		System.out.println("Enter the Email");
+		System.out.println("Enter the Admin Email");
 		String email = scr.next();
 
-		System.out.println("Enter the Password");
+		System.out.println("Enter the Admin Password");
 		String password = scr.next();
 
 		return dao.findAdmin(email, password);
@@ -250,10 +255,10 @@ public class Driver {
 	public Client loginClient() {
 		Scanner scr = new Scanner(System.in);
 
-		System.out.println("Enter the Email Id");
+		System.out.println("Enter the Client Email Id");
 		String mail = scr.next();
 
-		System.out.println("Enter the Password");
+		System.out.println("Enter the Client Password");
 		String password = scr.next();
 
 		return cdao.loginClient(mail, password);
@@ -354,11 +359,10 @@ public class Driver {
 		System.out.println("Choose above the given number which event you want to do Client Service");
 
 		ClientEvent event = cedao.findClientEvent(scr.nextInt());
-		
-		Admin a=findAdmin();
-		
-		if(a!= null)
-		{
+
+		Admin a = findAdmin();
+
+		if (a != null) {
 			List<Service> list = sdao.getAllService();
 			if (event != null) {
 				for (Service s : list) {
@@ -399,11 +403,43 @@ public class Driver {
 				}
 				num--;
 			}
-			return csdao.getAllClientService();
+			return cedao.findClientEvent(event.getClientEventId()).getClientServices();
 		}
-		
-		return null;		
-		
+
+		return null;
+
+	}
+
+	public String deleteClientService() {
+		Client client = loginClient();
+		List<ClientEvent> event = client.getEvents();
+
+		Scanner scr = new Scanner(System.in);
+
+		if (event != null) {
+			for (ClientEvent e : event) {
+				System.out.println(e.getClientEventId() + ". " + e.getEventType());
+			}
+			System.out.println();
+			System.out.println("Select your Event above the given number");
+
+			ClientEvent cevent = cedao.findClientEvent(scr.nextInt());
+			List<ClientService> cservice = cevent.getClientServices();
+
+			if (cevent != null) {
+
+				for (ClientService s : cservice) {
+					System.out.println(s.getClientServiceId() + ". " + s.getClientServiceName());
+				}
+
+				System.out.println();
+				System.out.println("Which Client Service you have to Cancel above the given number ?");
+				int id = scr.nextInt();
+				csdao.deleteClientService(id, cevent.getClientEventId());
+				return "Client Service Deleted Successfully...!";
+			}
+		}
+		return "Something is Wrong...!";
 	}
 
 }
